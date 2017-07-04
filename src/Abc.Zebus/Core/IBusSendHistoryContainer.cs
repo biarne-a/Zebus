@@ -5,6 +5,7 @@ namespace Abc.Zebus.Core
 {
     public interface IBusSendHistoryContainer
     {
-        IDictionary<string, DateTime> GetSentMessages();
+        IDictionary<string, DateTime> GetSentCommands();
+        IDictionary<string, DateTime> GetPublishedEvents();
     }
 }

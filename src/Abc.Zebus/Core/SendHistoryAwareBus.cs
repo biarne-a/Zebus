@@ -10,14 +10,17 @@ namespace Abc.Zebus.Core
     public class SendHistoryAwareBus : IBus, IBusSendHistoryContainer
     {
         private readonly IBus _bus;
-        private readonly ConcurrentDictionary<string, DateTime> _sentMessages;
+        private readonly ConcurrentDictionary<string, DateTime> _sentCommands;
+        private readonly ConcurrentDictionary<string, DateTime> _publishedEvents;
         
-        public IDictionary<string, DateTime> GetSentMessages() => _sentMessages.ToDictionary(x => x.Key, x => x.Value);
+        public IDictionary<string, DateTime> GetSentCommands() => _sentCommands.ToDictionary(x => x.Key, x => x.Value);
+        public IDictionary<string, DateTime> GetPublishedEvents() => _publishedEvents.ToDictionary(x => x.Key, x => x.Value);
 
         public SendHistoryAwareBus(IBus bus)
         {
             _bus = bus;
-            _sentMessages = new ConcurrentDictionary<string, DateTime>();
+            _sentCommands = new ConcurrentDictionary<string, DateTime>();
+            _publishedEvents = new ConcurrentDictionary<string, DateTime>();
         }
 
         public PeerId PeerId => _bus.PeerId;
@@ -26,9 +29,19 @@ namespace Abc.Zebus.Core
 
         public void Configure(PeerId peerId, string environment) => _bus.Configure(peerId, environment);
 
+        private void PersistSentCommand(IMessage message)
+        {
+            _sentCommands.AddOrUpdate(message.GetType().FullName, SystemDateTime.UtcNow, (fullName, oldTimeStamp) => SystemDateTime.UtcNow);
+        }
+
+        private void PersistPublishedEvent(IMessage message)
+        {
+            _publishedEvents.AddOrUpdate(message.GetType().FullName, SystemDateTime.UtcNow, (fullName, oldTimeStamp) => SystemDateTime.UtcNow);
+        }
+
         public void Publish(IEvent message)
         {
-            PersistSentMessage(message);
+            PersistPublishedEvent(message);
             _bus.Publish(message);
         }
 
@@ -36,7 +49,7 @@ namespace Abc.Zebus.Core
 
         public Task<CommandResult> Send(ICommand message, Peer peer)
         {
-            PersistSentMessage(message);
+            PersistSentCommand(message);
             return _bus.Send(message, peer);
         }
 
@@ -87,10 +100,5 @@ namespace Abc.Zebus.Core
         }
 
         public void Dispose() => _bus.Dispose();
-
-        private void PersistSentMessage(IMessage message)
-        {
-            _sentMessages.AddOrUpdate(message.GetType().FullName, SystemDateTime.UtcNow, (fullName, oldTimeStamp) => SystemDateTime.UtcNow);
-        }
     }
 }

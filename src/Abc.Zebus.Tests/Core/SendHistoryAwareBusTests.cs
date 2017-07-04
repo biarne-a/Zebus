@@ -31,11 +31,11 @@ namespace Abc.Zebus.Tests.Core
 
             using (SystemDateTime.Set(utcNow: now))
                 _bus.Send(new FakeCommand(12));
-
-            var sentMessages = _bus.GetSentMessages();
-            sentMessages.Count.ShouldEqual(1);
+            
+            var sentCommands = _bus.GetSentCommands();
+            sentCommands.Count.ShouldEqual(1);
             var messageTypeFullName = typeof(FakeCommand).FullName;
-            sentMessages[messageTypeFullName].ShouldEqual(now);
+            sentCommands[messageTypeFullName].ShouldEqual(now);
         }
 
         [Test]
@@ -46,25 +46,38 @@ namespace Abc.Zebus.Tests.Core
             using (SystemDateTime.Set(utcNow: now))
                 _bus.Publish(new FakeEvent(12));
 
-            var sentMessages = _bus.GetSentMessages();
-            sentMessages.Count.ShouldEqual(1);
+            var publishedEvents = _bus.GetPublishedEvents();
+            publishedEvents.Count.ShouldEqual(1);
             var messageTypeFullName = typeof(FakeEvent).FullName;
-            sentMessages[messageTypeFullName].ShouldEqual(now);
+            publishedEvents[messageTypeFullName].ShouldEqual(now);
         }
 
         [Test]
-        public void should_only_keep_track_of_last_reception_time()
+        public void should_only_keep_track_of_last_reception_time_when_sending()
+        {
+            var now = new DateTime(2017, 01, 02, 10, 30, 27);
+
+            using (SystemDateTime.Set(utcNow: now))
+                _bus.Send(new FakeCommand(12));
+
+            var sentCommands = _bus.GetSentCommands();
+            sentCommands.Count.ShouldEqual(1);
+            var messageTypeFullName = typeof(FakeCommand).FullName;
+            sentCommands[messageTypeFullName].ShouldEqual(now);
+        }
+
+        [Test]
+        public void should_only_keep_track_of_last_reception_time_when_publishing()
         {
             var now = new DateTime(2017, 01, 02, 10, 30, 27);
 
             using (SystemDateTime.Set(utcNow: now))
                 _bus.Publish(new FakeEvent(12));
 
-            var sentMessages = _bus.GetSentMessages();
-
-            sentMessages.Count.ShouldEqual(1);
+            var publishedEvents = _bus.GetPublishedEvents();
+            publishedEvents.Count.ShouldEqual(1);
             var messageTypeFullName = typeof(FakeEvent).FullName;
-            sentMessages[messageTypeFullName].ShouldEqual(now);
+            publishedEvents[messageTypeFullName].ShouldEqual(now);
         }
     }
 }

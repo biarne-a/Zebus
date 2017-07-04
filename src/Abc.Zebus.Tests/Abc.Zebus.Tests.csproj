@@ -101,6 +101,7 @@
     <Compile Include="Core\BusTests.Core.cs" />
     <Compile Include="Core\MessageContextAwareBusTests.cs" />
     <Compile Include="Core\RoundRobinPeerSelectorTests.cs" />
+    <Compile Include="Core\SendHistoryAwareBusTests.cs" />
     <Compile Include="Directory\PeerDirectoryClientTests.Performance.cs" />
     <Compile Include="Directory\PeerSubscriptionList.cs" />
     <Compile Include="Directory\PeerSubscriptionTreeTests.Performance.cs" />

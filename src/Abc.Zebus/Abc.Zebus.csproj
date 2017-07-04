@@ -76,6 +76,8 @@
     <Compile Include="Core\Bus.cs" />
     <Compile Include="CommandResult.cs" />
     <Compile Include="Core\BusFactory.cs" />
+    <Compile Include="Core\IBusSendHistoryContainer.cs" />
+    <Compile Include="Core\SendHistoryAwareBus.cs" />
     <Compile Include="Core\DefaultMessageSendingStrategy.cs" />
     <Compile Include="Core\DefaultStoppingStrategy.cs" />
     <Compile Include="Core\IMessageSendingStrategy.cs" />
